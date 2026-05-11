@@ -102,7 +102,11 @@
         { headers: { 'Authorization': `Bearer ${AIRTABLE_TOKEN}` } }
       );
 
-      if (!response.ok) throw new Error('Not found');
+      if (!response.ok) {
+  console.log('Status:', response.status);
+  console.log('Response:', await response.text());
+  throw new Error('Not found');
+}
 
       const data = await response.json();
       const fields = data.fields;

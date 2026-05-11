@@ -75,9 +75,7 @@
 </div>
 
 <script>
-  const AIRTABLE_TOKEN = 'patARE57acwqgZj8Q';
-  const BASE_ID = 'appoXIVdfph2uh4Om';
-  const TABLE_NAME = 'Table 1';
+  const N8N_WEBHOOK_URL = 'https://beeped.app.n8n.cloud/webhook/member-lookup';
 
   let html5QrCode;
 
@@ -97,23 +95,15 @@
     document.getElementById('resultCard').style.display = 'none';
 
     try {
-      const response = await fetch(
-        `https://api.airtable.com/v0/${BASE_ID}/${encodeURIComponent(TABLE_NAME)}/${recordId}`,
-        { headers: { 'Authorization': `Bearer ${AIRTABLE_TOKEN}` } }
-      );
+      const response = await fetch(`${N8N_WEBHOOK_URL}?id=${recordId}`);
 
-      if (!response.ok) {
-  console.log('Status:', response.status);
-  console.log('Response:', await response.text());
-  throw new Error('Not found');
-}
+      if (!response.ok) throw new Error('Not found');
 
       const data = await response.json();
-      const fields = data.fields;
 
       document.getElementById('loading').style.display = 'none';
 
-      const isActive = fields['Status'] === 'Active';
+      const isActive = data.status === 'Active';
       const header = document.getElementById('resultHeader');
       const statusIcon = document.getElementById('statusIcon');
       const statusText = document.getElementById('statusText');
@@ -123,11 +113,11 @@
       statusText.textContent = isActive ? 'ACTIVE' : 'EXPIRED';
       statusText.className = `status-text ${isActive ? 'active' : 'expired'}`;
 
-      document.getElementById('memberName').textContent = fields['Full Name'] || 'N/A';
-      document.getElementById('memberPlan').textContent = fields['Subscription'] || 'N/A';
-      document.getElementById('memberStart').textContent = fields['Start Date'] || 'N/A';
-      document.getElementById('memberExpiry').textContent = fields['End Date'] || 'N/A';
-      document.getElementById('memberPhone').textContent = fields['Phone Number'] || 'N/A';
+      document.getElementById('memberName').textContent = data.name || 'N/A';
+      document.getElementById('memberPlan').textContent = data.plan || 'N/A';
+      document.getElementById('memberStart').textContent = data.startDate || 'N/A';
+      document.getElementById('memberExpiry').textContent = data.endDate || 'N/A';
+      document.getElementById('memberPhone').textContent = data.phone || 'N/A';
 
       document.getElementById('resultCard').style.display = 'block';
 
